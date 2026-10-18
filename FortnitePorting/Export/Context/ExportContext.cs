@@ -154,7 +154,7 @@ public partial class ExportContext
                 var exporter = new MeshExporter(skeletalMesh, FileExportOptions);
                 foreach (var mesh in exporter.MeshLods)
                 {
-                    File.WriteAllBytes(path, mesh.FileData);
+                    File.WriteAllBytes(Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileName(mesh.FileName)), mesh.FileData);
                 }
                 break;
             }
@@ -163,7 +163,7 @@ public partial class ExportContext
                 var exporter = new MeshExporter(staticMesh, FileExportOptions);
                 foreach (var mesh in exporter.MeshLods)
                 {
-                    File.WriteAllBytes(path, mesh.FileData);
+                    File.WriteAllBytes(Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileName(mesh.FileName)), mesh.FileData);
                 }
                 break;
             }
@@ -172,7 +172,7 @@ public partial class ExportContext
                 var exporter = new MeshExporter(skeleton, FileExportOptions);
                 foreach (var skel in exporter.MeshLods)
                 {
-                    File.WriteAllBytes(path, skel.FileData);
+                    File.WriteAllBytes(Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileName(skel.FileName)), skel.FileData);
                 }
                 break;
             }

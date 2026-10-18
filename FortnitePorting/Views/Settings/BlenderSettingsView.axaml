@@ -5,6 +5,7 @@
              xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:ext="clr-namespace:FortnitePorting.Shared.Extensions;assembly=FortnitePorting.Shared"
              xmlns:enums="clr-namespace:CUE4Parse_Conversion.UEFormat.Enums;assembly=CUE4Parse-Conversion"
+             xmlns:meshes="clr-namespace:CUE4Parse_Conversion.Meshes;assembly=CUE4Parse-Conversion"
              xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
              xmlns:settings="clr-namespace:FortnitePorting.ViewModels.Settings"
              xmlns:fortnitePorting="clr-namespace:FortnitePorting"
@@ -46,6 +47,13 @@
             <ui:SettingsExpander Header="Import Game Models" Description="Whether or not to import the in-game model instead of the lobby model.">
                 <ui:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding ImportGameModel}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+            
+            <ui:SettingsExpander Header="Mesh Format" Description="The file type that meshes should be exported as. PSK requires the 'io_scene_psk_psa' extension in Blender.">
+                <ui:SettingsExpander.Footer>
+                    <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type meshes:EMeshFormat}}"
+                              SelectedItem="{Binding MeshFormat, Converter={StaticResource EnumToRecord}}" />
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
             

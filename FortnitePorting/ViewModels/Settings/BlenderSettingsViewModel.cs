@@ -50,7 +50,7 @@ public partial class BlenderSettingsViewModel : BaseExportSettings
         return new ExporterOptions
         {
             LodFormat = ELodFormat.AllLods,
-            MeshFormat = EMeshFormat.UEFormat,
+            MeshFormat = MeshFormat,
             AnimFormat = EAnimFormat.UEFormat,
             CompressionFormat = CompressionFormat,
             ExportMorphTargets = true,
