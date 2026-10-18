@@ -1,3 +1,4 @@
+import glob
 import json
 import math
 import os.path
@@ -6,6 +7,7 @@ import pyperclip
 
 import bpy
 import traceback
+from mathutils import Matrix
 from math import radians
 
 from .mappings import *
@@ -95,7 +97,10 @@ class ImportContext:
             
         if self.type == EExportType.OUTFIT:
             master_skeleton = get_selected_armature()
-            master_mesh = get_armature_mesh(master_skeleton)
+            master_mesh = get_armature_mesh(master_skeleton) if master_skeleton else None
+            if master_mesh is None:
+                Log.warn("Outfit import: no skeleton/mesh was imported, skipping outfit post-processing (rig, outline, vertex crunch, animation)")
+                return
             
             for material, elements in self.partial_vertex_crunch_materials.items():
                 vertex_crunch_modifier = master_mesh.modifiers.new("FP Vertex Crunch", type="NODES")
@@ -359,15 +364,15 @@ class ImportContext:
 
         path = path[1:] if path.startswith("/") else path
 
+        if self.options.get("MeshFormat") == 0:  # EMeshFormat.ActorX
+            return self.import_psk(os.path.join(self.assets_root, path.split(".")[0]))
+
         mesh_path = os.path.join(self.assets_root, path.split(".")[0] + ".uemodel")
 
         mesh, mesh_data = UEFormatImport(options).import_file(mesh_path)
 
-        if mesh is None:
-            return mesh
-
-        if imported_mesh := get_armature_mesh(mesh):
-            bpy.context.view_layer.objects.active = imported_mesh
+        if mesh is not None:
+            bpy.context.view_layer.objects.active = get_armature_mesh(mesh)
             bpy.ops.object.editmode_toggle()
             bpy.ops.mesh.select_all(action='SELECT')
             bpy.ops.mesh.set_normals_from_faces()
@@ -375,6 +380,33 @@ class ImportContext:
             
         return mesh
     
+    def import_psk(self, base_path):
+        lod = self.options.get("TargetLOD")
+        files = glob.glob(f"{base_path}_LOD{lod}.psk*") or glob.glob(f"{base_path}_LOD0.psk*") or glob.glob(f"{base_path}.psk*")
+        if not files:
+            Log.warn(f"No psk/pskx file found for: {base_path}")
+            return None
+
+        bpy.ops.object.select_all(action='DESELECT')
+        try:
+            bpy.ops.psk.import_file(filepath=files[0], scale=1.0, bone_length=self.options.get("BoneLength"))
+        except AttributeError:
+            Log.warn("PSK import requires the 'io_scene_psk_psa' extension to be installed in Blender")
+            return None
+
+        root = bpy.context.view_layer.objects.active
+        # psk data is in unreal units; bake the scale into mesh/armature data because import_model overwrites object scale
+        scale_matrix = Matrix.Scale(self.scale, 4)
+        for obj in [root, *root.children]:
+            if obj.type == 'MESH':
+                obj.data.transform(scale_matrix, shape_keys=True)
+            elif obj.type == 'ARMATURE':
+                obj.data.transform(scale_matrix)
+            if obj.name not in self.collection.objects:
+                self.collection.objects.link(obj)
+                bpy.context.scene.collection.objects.unlink(obj)
+        return root
+
     def import_texture_data(self, data):
         import_method = ETextureImportMethod(self.options.get("TextureImportMethod"))
 
@@ -453,17 +485,12 @@ class ImportContext:
 
         if additional_hash != 0:
             material_hash += additional_hash
-            material_name += f"_{hash_code(material_hash)}"
             
         if existing_material := first(bpy.data.materials, lambda mat: mat.get("Hash") == hash_code(material_hash)):
             if not as_material_data:
                 material_slot.material = existing_material
                 return
 
-        # same name but different hash
-        if (name_existing := first(bpy.data.materials, lambda mat: mat.name == material_name)) and name_existing.get("Hash") != material_hash:
-            material_name += f"_{hash_code(material_hash)}"
-            
         if not as_material_data and material_slot.material.name.casefold() != material_name.casefold():
             material_slot.material = bpy.data.materials.new(material_name)
 
