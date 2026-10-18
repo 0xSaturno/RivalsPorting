@@ -80,6 +80,11 @@
                     </StackPanel>
                 </ui:SettingsExpander.Footer>
             </ui:SettingsExpander>
+            <ui:SettingsExpander Header="Root Paks Only" Description="Only load archives directly inside the Archive Directory and skip subfolders such as ~mods.">
+                <ui:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding CurrentProfile.RootPaksOnly}"/>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
             <ui:SettingsExpander Header="Game Language" Description="The language used for in-game text strings such as names, descriptions, styles, etc.">
                 <ui:SettingsExpander.Footer>
                     <ComboBox ItemsSource="{ext:EnumToItemsSource {x:Type versions:ELanguage}}"

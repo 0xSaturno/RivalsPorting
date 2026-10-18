@@ -56,7 +56,8 @@ public class CUE4ParseViewModel : ViewModelBase
     public bool FinishedLoading;
 
     public readonly DefaultFileProvider Provider = new (
-        AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory, SearchOption.AllDirectories, true,
+        AppSettings.Current.Installation.CurrentProfile.ArchiveDirectory,
+        AppSettings.Current.Installation.CurrentProfile.RootPaksOnly ? SearchOption.TopDirectoryOnly : SearchOption.AllDirectories, true,
         new VersionContainer(AppSettings.Current.Installation.CurrentProfile.UnrealVersion));
     
     public readonly List<FAssetData> AssetRegistry = [];

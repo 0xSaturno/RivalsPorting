@@ -28,6 +28,8 @@ public partial class InstallationProfile : ObservableValidator
     private EFortniteVersion _fortniteVersion = EFortniteVersion.LatestInstalled;
     
     [ObservableProperty] private string _archiveDirectory;
+
+    [ObservableProperty] private bool _rootPaksOnly = true;
     
     [ObservableProperty] private EGame _unrealVersion = EGame.GAME_MarvelRivals;
     
