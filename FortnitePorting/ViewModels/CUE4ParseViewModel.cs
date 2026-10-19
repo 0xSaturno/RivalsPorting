@@ -99,7 +99,18 @@ public class CUE4ParseViewModel : ViewModelBase
         
         Provider.PostMount();
         
-        if (!Provider.TryChangeCulture(Provider.GetLanguageCode(AppSettings.Current.Installation.CurrentProfile.GameLanguage)))
+        var languageCode = Provider.GetLanguageCode(AppSettings.Current.Installation.CurrentProfile.GameLanguage);
+        var languageLoaded = false;
+        for (var attempt = 1; attempt <= 3 && !languageLoaded; attempt++)
+        {
+            languageLoaded = Provider.TryChangeCulture(languageCode);
+            if (languageLoaded) break;
+            
+            Log.Warning("Failed to load language {Language} (attempt {Attempt}/3)", languageCode, attempt);
+            await Task.Delay(1000);
+        }
+        
+        if (!languageLoaded)
         {
             AppWM.Message("Internationalization", $"Failed to load language \"{AppSettings.Current.Installation.CurrentProfile.GameLanguage.GetDescription()}\"");
         }
@@ -150,6 +161,14 @@ public class CUE4ParseViewModel : ViewModelBase
     
     private async Task InitializeProvider()
     {
+        // Costura loads embedded assemblies lazily without a lock; parallel pak mounting can load
+        // GenericReader twice and every mount then fails with MissingMethodException. Load them once up front.
+        foreach (var reference in typeof(DefaultFileProvider).Assembly.GetReferencedAssemblies())
+        {
+            try { Assembly.Load(reference); }
+            catch (Exception e) { Log.Warning("Failed to preload {Assembly}: {Message}", reference.Name, e.Message); }
+        }
+        
         Provider.CustomEncryption = MarvelAes.MarvelDecrypt;
         Provider.Initialize();
     }

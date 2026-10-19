@@ -70,7 +70,8 @@ public partial class HomeViewModel : ViewModelBase
             AppWM.GameBasedTabsAreReady = true;
             AppWM.OnlineAndGameTabsAreVisible = AppSettings.Current.Online.UseIntegration;
             
-            if (AppWM.IsInView<HomeView>())
+            // mounting is complete here; skip the switch if nothing mounted so the user doesn't land on an empty tab
+            if (CUE4ParseVM.Provider.MountedVfs.Count > 0 && AppWM.IsInView<HomeView>())
                 TaskService.RunDispatcher(() => AppWM.Navigate<AssetsView>());
             
             ViewModelRegistry.New<FilesViewModel>();
