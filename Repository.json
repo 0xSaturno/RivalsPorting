@@ -68,6 +68,11 @@
       "UploadTime": "04-24-2026",
       "ExecutableURL": "https://github.com/Bmarquez1997/RivalsPorting/releases/download/MR-0.4.4/RivalsPorting.exe",
       "Version": "v0.4.4-alpha"
+    },
+    {
+      "UploadTime": "10-19-2026",
+      "Version": "v0.4.5-alpha",
+      "ExecutableURL": "https://github.com/0xSaturno/RivalsPorting/releases/download/MR-0.4.5/RivalsPorting.exe"
     }
   ]
 }
