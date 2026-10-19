@@ -60,6 +60,54 @@ public partial class AssetsView : ViewBase<AssetsViewModel>
         }
     }
     
+    // a skin id or skin name in the search box jumps straight to its hero and selects that skin
+    private void OnSearchTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        if (sender is not AutoCompleteBox { Text: { Length: > 0 } text }) return;
+        var search = text.Trim();
+        var heroes = ViewModel.AssetLoaderCollection.ActiveLoader.Source.Items.OfType<AssetItem>()
+            .Where(item => item.AssetInfo is not null)
+            .OrderBy(item => item.CreationData.DisplayName)
+            .ToList();
+
+        bool Exact(AssetStyleData data) => data.StyleId.Equals(search, StringComparison.OrdinalIgnoreCase)
+                                           || data.StyleName.Equals(search, StringComparison.OrdinalIgnoreCase);
+        bool Partial(AssetStyleData data) => data.StyleId.Contains(search, StringComparison.OrdinalIgnoreCase)
+                                             || data.StyleName.Contains(search, StringComparison.OrdinalIgnoreCase);
+
+        if (TrySelectSkin(heroes, Exact)) return;
+        
+        // partial matches only once the text is specific enough and isn't just a hero name being typed
+        if (search.Length < 3) return;
+        if (heroes.Any(item => item.CreationData.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase))) return;
+        TrySelectSkin(heroes, Partial);
+    }
+
+    private bool TrySelectSkin(System.Collections.Generic.List<AssetItem> heroes, Func<AssetStyleData, bool> predicate)
+    {
+        foreach (var item in heroes)
+        {
+            foreach (var styleInfo in item.AssetInfo!.StyleInfos)
+            {
+                var index = styleInfo.StyleDatas.ToList().FindIndex(data => data is AssetStyleData styleData && predicate(styleData));
+                if (index < 0) continue;
+
+                styleInfo.SelectedStyleIndex = index;
+                // wait for the filtered list to refresh before selecting
+                Dispatcher.UIThread.Post(() =>
+                {
+                    AssetsListBox.SelectedItems?.Clear();
+                    AssetsListBox.SelectedItem = item;
+                    AssetsListBox.ScrollIntoView(item);
+                    styleInfo.SelectedStyleIndex = index;
+                }, DispatcherPriority.Background);
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
     private void OnScrollAssets(object? sender, PointerWheelEventArgs e)
     {
         if (sender is not ScrollViewer scrollViewer) return;

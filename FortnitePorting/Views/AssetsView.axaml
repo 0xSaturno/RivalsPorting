@@ -110,7 +110,7 @@
                             </StackPanel>
                         </DropDownButton>
                         
-                        <AutoCompleteBox Grid.Column="10" FilterMode="ContainsOrdinal" Watermark="Search"
+                        <AutoCompleteBox Grid.Column="10" FilterMode="ContainsOrdinal" Watermark="Search" TextChanged="OnSearchTextChanged"
                                          ItemsSource="{Binding AssetLoaderCollection.ActiveLoader.SearchAutoComplete}" 
                                          Text="{Binding AssetLoaderCollection.ActiveLoader.SearchFilter, Mode=TwoWay}"/>
                         

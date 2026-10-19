@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
@@ -38,7 +39,8 @@ public abstract partial class BaseAssetItem : ObservableObject
             return CreationData switch
             {
                 AssetItemCreationArgs assetArgs => Regex.IsMatch(assetArgs.DisplayName, filter)
-                                                   ||  Regex.IsMatch(assetArgs.Object.Name, filter),
+                                                   || (assetArgs.Object is not null && Regex.IsMatch(assetArgs.Object.Name, filter))
+                                                   || SkinSearchTerms().Any(id => Regex.IsMatch(id, filter)),
                 CustomAssetItemCreationArgs creationArgs =>  Regex.IsMatch(creationArgs.DisplayName, filter),
                 _ => true
             };
@@ -47,11 +49,17 @@ public abstract partial class BaseAssetItem : ObservableObject
         return CreationData switch
         {
             AssetItemCreationArgs assetArgs => MiscExtensions.Filter(assetArgs.DisplayName, filter)
-                                               || MiscExtensions.Filter(assetArgs.ID, filter),
+                                               || MiscExtensions.Filter(assetArgs.ID, filter)
+                                               || SkinSearchTerms().Any(id => MiscExtensions.Filter(id, filter)),
             CustomAssetItemCreationArgs creationArgs => MiscExtensions.Filter(creationArgs.DisplayName, filter),
             _ => true
         };
     }
+
+    public System.Collections.Generic.IEnumerable<string> SkinSearchTerms() =>
+        this is AssetItem { AssetInfo: { } info }
+            ? info.StyleInfos.SelectMany(style => style.StyleDatas).OfType<AssetStyleData>().SelectMany(data => new[] { data.StyleId, data.StyleName })
+            : [];
 
     protected virtual SKBitmap CreateDisplayImage(SKBitmap iconBitmap)
     {
