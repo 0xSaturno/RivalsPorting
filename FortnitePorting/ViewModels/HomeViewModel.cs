@@ -22,6 +22,8 @@ using FortnitePorting.Shared.Services;
 using FortnitePorting.ViewModels.Settings;
 using Serilog;
 
+using FortnitePorting.Views;
+
 namespace FortnitePorting.ViewModels;
 
 public partial class HomeViewModel : ViewModelBase
@@ -67,6 +69,9 @@ public partial class HomeViewModel : ViewModelBase
             
             AppWM.GameBasedTabsAreReady = true;
             AppWM.OnlineAndGameTabsAreVisible = AppSettings.Current.Online.UseIntegration;
+            
+            if (AppWM.IsInView<HomeView>())
+                TaskService.RunDispatcher(() => AppWM.Navigate<AssetsView>());
             
             ViewModelRegistry.New<FilesViewModel>();
             await FilesVM.Initialize();
