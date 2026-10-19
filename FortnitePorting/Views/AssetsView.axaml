@@ -160,6 +160,8 @@
                                             </Grid>
                                             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis"
                                                        Text="{Binding CreationData.DisplayName, Converter={StaticResource TitleCaseString}}" />
+                                            <TextBlock HorizontalAlignment="Center" FontSize="10" Opacity="0.6" TextTrimming="CharacterEllipsis"
+                                                       Text="{Binding CreationData.ID}" />
                                         </StackPanel>
                                     </ContentControl>
                                 </DataTemplate>
@@ -235,7 +237,7 @@
                                                                 <ListBox.ItemTemplate>
                                                                     <DataTemplate DataType="assets:BaseStyleData">
                                                                         <ContentControl Padding="8" ToolTip.Tip="{Binding StyleName}">
-                                                                            <Grid MaxWidth="64" RowDefinitions="*, Auto">
+                                                                            <Grid MaxWidth="64" RowDefinitions="*, Auto, Auto">
                                                                                 <Border Grid.Row="0" Width="64" Height="64" CornerRadius="12">
                                                                                     <Border.Background>
                                                                                         <ImageBrush Source="{Binding StyleDisplayImage}" />
@@ -245,6 +247,9 @@
                                                                                            Classes="CaptionTextBlockStyle" TextWrapping="Wrap" 
                                                                                            TextTrimming="CharacterEllipsis" TextAlignment="Center"
                                                                                            IsVisible="{Binding ShowName}"/>
+                                                                                <TextBlock Grid.Row="2" Text="{Binding StyleId}" HorizontalAlignment="Center"
+                                                                                           FontSize="10" Opacity="0.6" TextTrimming="CharacterEllipsis"
+                                                                                           IsVisible="{Binding !!StyleId.Length}"/>
                                                                             </Grid>
                                                                         </ContentControl>
                                                                     </DataTemplate>

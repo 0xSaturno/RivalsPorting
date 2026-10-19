@@ -10,6 +10,7 @@ namespace FortnitePorting.Models.Assets;
 public abstract partial class BaseStyleData : ObservableObject
 {
     [ObservableProperty] private string _styleName;
+    [ObservableProperty] private string _styleId = string.Empty;
     [ObservableProperty] private Bitmap _styleDisplayImage;
     [ObservableProperty] private bool _showName = true;
 }
@@ -25,6 +26,7 @@ public partial class AssetStyleData : BaseStyleData
         var name = StyleData.GetOrDefault("SkinName", new FText("Unnamed")).Text.ToLower().TitleCase();
         if (string.IsNullOrWhiteSpace(name)) name = "Unnamed";
         StyleName = name;
+        StyleId = StyleData.GetOrDefault("SkinItemID", string.Empty);
         
         StyleDisplayImage = previewImage;
     }
